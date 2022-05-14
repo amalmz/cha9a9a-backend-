@@ -23,12 +23,13 @@ database.once('open', () => {
 app.use(function(req, res, next) { res.header("Access-Control-Allow-Headers","x-access-token, Origin, Content-Type, Accept");next();});
 app.use(cors())
 app.use(express.json())
-app.use(express.urlencoded({ extended: true} ));  // so he can read the body even if it's writen in json or urlrncoded
+app.use(express.urlencoded({ extended: true} )); // so he can read the body even if it's writen in json or urlrncoded
 app.use("/campaign",campaignRoute);
 app.use("/comment",commentRoute);
 app.use("/category",categoryRoute);
 app.use("/users",userRoute)
 require('./routes/auth.route')(app);
+
 
   
 const Port = process.env.Port || 5000 

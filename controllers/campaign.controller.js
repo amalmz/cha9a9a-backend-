@@ -8,7 +8,7 @@ module.exports = {
             name:req.body.name,
             objective:req.body.objective,
             description:req.body.description,
-            image:req.body.filename,
+            image:req.file.filename,
             category: req.body.category,
             created_by:req.userId
         }
@@ -65,7 +65,7 @@ module.exports = {
                   data: campaigns,
                });
            }
-   });
+   }).populate("created_by").populate({path:"comments",populate:{path:"user_id"}});
     },
 
     updateCampaign:async(req,res)=>{
@@ -122,13 +122,7 @@ module.exports = {
 
 
     deleteCampaign:async(req,res)=>{
-        let campaign_id = req.params.campaign_id;
-        if(!mongoose.Types.ObjectId.isValid(campaign_id)){
-          return res.status(400).json({
-              message:"Invalid id campaign",
-              data:{}
-          });
-      }
+     let campaign_id = req.params.campaign_id;
       Campaign.findOne({_id:campaign_id}).then(async(campaign)=>{
           if(!campaign){
               return res.status(400).json({
@@ -145,6 +139,13 @@ module.exports = {
                 }else{
                    try{
                      await Campaign.deleteOne({_id:campaign_id});
+                          let comment = campaign.comments;
+                         const CommentId = comment.map(id => {
+                          return id
+                          })
+                        for(let i=0;i<=CommentId.length; i++){
+                         await Comment.deleteOne({_id: CommentId[i]})
+                        }
                       return res.status(200).json({
                        message:"Campaign is successfully deleted",
                        data:campaign
@@ -165,4 +166,21 @@ module.exports = {
         });
       })
     },
+    // getCommentsByCampaign:async(req,res)=>{
+    //     let campaign_id = req.params.campaign_id;
+    //     try{
+    //         const CammpaignComments = await Campaign.find({_id :campaign_id}).populate("comments")
+    //          return res.status(200).json({
+    //            message:"comments of campaign",
+    //            data:CammpaignComments
+    //        })
+
+    //     }catch(err){
+    //         return res.status(400).json({
+    //             message:err.message ,
+    //             data: err,
+    //         })
+
+    //     }
+    // }
 }

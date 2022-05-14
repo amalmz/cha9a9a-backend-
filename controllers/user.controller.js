@@ -43,3 +43,8 @@ exports.getUserbyid =(req,res) =>{
        }
 });
 }
+
+exports.UpdateRole=(req,res)=>{
+   
+
+}

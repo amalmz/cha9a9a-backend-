@@ -16,6 +16,8 @@ verifyToken = (req, res, next) => {
       next();
     });
   };
+
+  
   isAdmin = (req, res, next) => {
     User.findById(req.userId).exec((err, user) => {
       if (err) {

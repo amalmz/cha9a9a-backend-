@@ -3,7 +3,8 @@ const route = express.Router()
 const CommentController = require('../controllers/comment.controller')
 const { verifyToken } = require('../middleware/auth')
 
-route.post('/:campaign_id/create',verifyToken,CommentController.create);
-route.get('/:campaign_id',CommentController.list)
+route.post('/:campaign_id/create',verifyToken,CommentController.createComment);
+route.delete('/:campaign_id/:id',verifyToken,CommentController.deleteComment);
+route.put('/:id',verifyToken,CommentController.updateComment);
 
 module.exports=route;

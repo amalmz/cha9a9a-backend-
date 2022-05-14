@@ -3,15 +3,16 @@ const mongoose = require("mongoose");
 const CommentSchema = new mongoose.Schema({
 
     text:{
-        type:String
+        type:String,
+        required:true
     },
     campaign_id:{
       type:mongoose.Schema.Types.ObjectId,
-      ref:'Campaign'
+      ref:'Campaign',
     },
     user_id:{
       type:mongoose.Schema.Types.ObjectId,
-      ref:'User'
+      ref:'User',
     }
   },{
       timestamps:true,

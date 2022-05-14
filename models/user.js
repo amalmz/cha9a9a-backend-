@@ -22,12 +22,19 @@ const User = new mongoose.Schema({
     type : String ,
     required :true 
 },
+verified:Boolean,
 roles: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Role"
     }
-  ]
+  ],
+campaign:[
+  {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"Campaign"
+  }
+]
 
 
 });

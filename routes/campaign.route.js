@@ -10,6 +10,7 @@ route.get('/all',CampaignController.getAllCampaigns);
 route.get('/:id',CampaignController.getCampaignsbyid);
 route.put("/:campaign_id",upload.any('image'),verifyToken,CampaignController.updateCampaign);
 route.delete("/:campaign_id",verifyToken,isCreator,CampaignController.deleteCampaign);
+route.put("/:campaign_id/updateEtat",verifyToken,CampaignController.updateCampaignEtat);
 // route.get("/:campaign_id/comments",CampaignController.getCommentsByCampaign)
 
 module.exports=route;

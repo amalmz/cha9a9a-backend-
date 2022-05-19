@@ -69,8 +69,7 @@ exports.signup = (req, res) => {
     let transporter = nodemailer.createTransport({
       service: "gmail",
        auth: {
-
-          user:"duetodatasousse@gmail.com",
+           user:"duetodatasousse@gmail.com",
            pass:"duetodata123" ,
        },       tls:{
            rejectUnauthorized: false

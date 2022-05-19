@@ -25,7 +25,10 @@ const CampaignSchema = new mongoose.Schema({
   category :{
     type: mongoose.Schema.Types.ObjectId, // hetha foreign key  
     ref : 'Category',
-},
+  },
+  status:{
+   type:String,
+  },
   created_by:{
     type: mongoose.Schema.Types.ObjectId,
     ref:'User'

@@ -1,33 +1,36 @@
 const Campaign = require('../models/campaign');
 const { mongoose } = require('../models/roles');
 const Comment = require('../models/comments');
+const User = require('../models/user')
 
 module.exports = {
-    createCampaign :(req,res)=>{
-        let data ={
+    createCampaign :async(req,res)=>{
+        const campaign = new Campaign({
             name:req.body.name,
             objective:req.body.objective,
             description:req.body.description,
             image:req.file.filename,
             category: req.body.category,
+            status:"Waiting",
             created_by:req.userId
-        }
-
-    Campaign.create(data,(err,campaign)=>{
-
-        if(err){
-            res.status(500).json({
-                message: 'campaign not created'+err,
-                data: null,
-            });
-        }else {
-            res.status(201).json({
-                message: 'campaign is successfuly created',
-                data: campaign,
-            });
-        }
-
-    })
+        })
+        try{
+        let campaignData = await campaign.save()
+        await User.findByIdAndUpdate({_id:req.userId},{
+    	$push:{
+            campaign : campaignData
+        }})
+        return res.status(200).json({
+            message:'Campaign is succssfully created',
+            data:campaignData,
+        })
+        
+          }catch(err){
+            return res.status(400).json({
+                message:err.message,
+                data:err
+             })
+          }
 
 },
     getAllCampaigns :async(req,res)=>{
@@ -35,7 +38,7 @@ module.exports = {
         const limit = parseInt(req.query.limit);
         const skipIndex = (page - 1) * limit;
         const total = await Campaign.countDocuments({});
-        const campaigns = await Campaign.find({})
+        const campaigns = await Campaign.find({}).populate("category").populate("created_by")
         .limit(limit)
         .skip(skipIndex)
         if(campaigns.length === 0){
@@ -118,9 +121,6 @@ module.exports = {
         });
       })
     },
-
-
-
     deleteCampaign:async(req,res)=>{
      let campaign_id = req.params.campaign_id;
       Campaign.findOne({_id:campaign_id}).then(async(campaign)=>{
@@ -166,6 +166,24 @@ module.exports = {
         });
       })
     },
+
+    updateCampaignEtat:async(req,res)=>{
+        let campaign_id = req.params.campaign_id;
+        var status = req.body.status
+        const Allstatus = ["Waiting","Accept","Reject","Published"];
+        var ok = false ;
+        for(i = 0; i < Allstatus.length; i++){
+            if(status == Allstatus[i] ){
+                ok = true
+            }
+        }
+        if(!ok){
+           return res.status(400).send({status:false})
+        }
+        const result = await Campaign.findByIdAndUpdate({_id:campaign_id},{status:status})
+        return res.send({status:true,resultat:result})
+
+    }
     // getCommentsByCampaign:async(req,res)=>{
     //     let campaign_id = req.params.campaign_id;
     //     try{

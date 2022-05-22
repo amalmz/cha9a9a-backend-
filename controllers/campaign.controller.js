@@ -8,9 +8,9 @@ module.exports = {
         const campaign = new Campaign({
             name:req.body.name,
             objective:req.body.objective,
+            category: req.body.category,
             description:req.body.description,
             image:req.file.filename,
-            category: req.body.category,
             status:"Waiting",
             created_by:req.userId
         })
@@ -71,6 +71,22 @@ module.exports = {
    }).populate("created_by").populate({path:"comments",populate:{path:"user_id"}});
     },
 
+    // getCampaignsByStatus:(req,res)=>{
+    //     Campaign.find({status:{$elemMatch:'Waiting'}},(err,campaigns)=>{
+    //         if(campaigns.length === 0){
+    //             res.status(500).json({
+    //                 message:"campaigns not found " +err ,
+    //                 data: null,
+    //             });
+    //          }else {
+    //              res.status(200).json({
+    //                  message:"campaigns is found" ,
+    //                 data: campaigns,
+    //              });
+    //          }
+    //     })
+    // },
+
     updateCampaign:async(req,res)=>{
         let campaign_id = req.params.campaign_id;
         if(!mongoose.Types.ObjectId.isValid(campaign_id)){
@@ -97,9 +113,9 @@ module.exports = {
                      await Campaign.updateOne({_id:campaign_id},{
                        name:req.body.name,
                        objective:req.body.objective,
+                       category: req.body.category,
                        description:req.body.description,
                        image:req.body.filename,
-                       category: req.body.category,
                      });
                       return res.status(200).json({
                        message:"Campaign is successfully updated",

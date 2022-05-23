@@ -9,7 +9,8 @@ const commentRoute = require('./routes/comment.route');
 const campaignRoute = require('./routes/campaign.route');
 const categoryRoute= require('./routes/category.route');
 const userRoute= require('./routes/user.route');
-
+const routerServerMail = require('./routes/sendemail.route');
+const stripe = require("stripe")("sk_test_51KzNmnKxDkYllxSndR9I6t5GYHz6nuk4XWonVikVU3ukExgVaZn25vFVXutEZb3nPPmy6EkpFKftQWc7NLRGinwH00mUY9JUdQ");
 
 mongoose.connect('mongodb://127.0.0.1:27017/database', {useNewUrlParser:true}, {useUnifiedTopology:true}); 
 const database = mongoose.connection 
@@ -27,9 +28,46 @@ app.use(express.urlencoded({ extended: true} )); // so he can read the body even
 app.use("/campaign",campaignRoute);
 app.use("/comment",commentRoute);
 app.use("/category",categoryRoute);
-app.use("/users",userRoute)
+app.use("/users",userRoute);
+app.use('/contact',routerServerMail);
 require('./routes/auth.route')(app);
 
+
+app.post('/checkout', async(req, res) =>{
+  try {
+      console.log(req.body);
+      token = req.body.token
+    const customer = stripe.customers
+      .create({
+        email: req.body.email,
+        source: token.id
+      })
+      .then((customer) => {
+        console.log(customer);
+        return stripe.charges.create({
+          amount: 1000,
+          description: "Test Purchase using express and Node",
+          currency: "TND",
+          customer: customer.id,
+        });
+      })
+      .then((charge) => {
+        console.log(charge);
+          res.json({
+            data:"success"
+        })
+      })
+      .catch((err) => {
+          res.json({
+            data: "failure",
+          });
+      });
+    return true;
+  } catch (error) {
+    return false;
+  }
+
+})
 
   
 const Port = process.env.Port || 5000 

@@ -2,6 +2,7 @@ const Campaign = require('../models/campaign');
 const { mongoose } = require('../models/roles');
 const Comment = require('../models/comments');
 const User = require('../models/user')
+const stripe = require("stripe")("sk_test_51KzNmnKxDkYllxSndR9I6t5GYHz6nuk4XWonVikVU3ukExgVaZn25vFVXutEZb3nPPmy6EkpFKftQWc7NLRGinwH00mUY9JUdQ");
 
 module.exports = {
     createCampaign :async(req,res)=>{
@@ -20,6 +21,13 @@ module.exports = {
     	$push:{
             campaign : campaignData
         }})
+        const campaignStripe = await stripe.products.create({
+            name: req.body.name,
+            default_price_data: {
+                unit_amount: 0,
+                currency: 'usd',
+              },          
+          });
         return res.status(200).json({
             message:'Campaign is succssfully created',
             data:campaignData,
@@ -71,21 +79,21 @@ module.exports = {
    }).populate("created_by").populate({path:"comments",populate:{path:"user_id"}});
     },
 
-    // getCampaignsByStatus:(req,res)=>{
-    //     Campaign.find({status:{$elemMatch:'Waiting'}},(err,campaigns)=>{
-    //         if(campaigns.length === 0){
-    //             res.status(500).json({
-    //                 message:"campaigns not found " +err ,
-    //                 data: null,
-    //             });
-    //          }else {
-    //              res.status(200).json({
-    //                  message:"campaigns is found" ,
-    //                 data: campaigns,
-    //              });
-    //          }
-    //     })
-    // },
+    getCampaignsByStatus:(req,res)=>{
+        try{    
+            Campaign.find({status:req.params.status},(err,campaigns)=>{
+            res.status(200).json({
+                message:"campaigns is found" ,
+               data: campaigns,
+            });
+        }).populate("created_by").populate("category");
+       }catch(e){
+       res.status(400).json({ 
+            message:"campaigns not found " ,
+            error: e.message})
+      }
+   
+ },
 
     updateCampaign:async(req,res)=>{
         let campaign_id = req.params.campaign_id;
@@ -199,7 +207,7 @@ module.exports = {
         const result = await Campaign.findByIdAndUpdate({_id:campaign_id},{status:status})
         return res.send({status:true,resultat:result})
 
-    }
+    },
     // getCommentsByCampaign:async(req,res)=>{
     //     let campaign_id = req.params.campaign_id;
     //     try{

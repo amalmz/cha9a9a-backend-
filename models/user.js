@@ -34,6 +34,12 @@ campaign:[
     type:mongoose.Schema.Types.ObjectId,
     ref:"Campaign"
   }
+],
+requests:[
+  {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"Request"
+  }
 ]
 
 

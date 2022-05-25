@@ -32,7 +32,6 @@ app.use("/users",userRoute);
 app.use('/contact',routerServerMail);
 require('./routes/auth.route')(app);
 
-
 app.post('/checkout', async(req, res) =>{
   try {
       console.log(req.body);
@@ -47,7 +46,7 @@ app.post('/checkout', async(req, res) =>{
         return stripe.charges.create({
           amount: 1000,
           description: "Test Purchase using express and Node",
-          currency: "TND",
+          currency: "USD",
           customer: customer.id,
         });
       })
@@ -66,6 +65,28 @@ app.post('/checkout', async(req, res) =>{
   } catch (error) {
     return false;
   }
+
+})
+
+app.get("/getDonors",async(req, res) =>{
+
+   stripe.customers.list(function(err,customers){
+      if(err){
+        console.log("err"+err);
+      }if(customers){
+        console.log("success",customers)
+        res.json({
+          data:customers
+      })
+      }else{
+        console.log("somthing is wrong")
+      }
+      
+   }
+   
+   
+   )
+
 
 })
 

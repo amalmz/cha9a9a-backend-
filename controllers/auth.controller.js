@@ -6,7 +6,8 @@ var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs"); //this is for password bcryption
 const nodemailer = require("nodemailer");
 const UserVerification = require("../models/userVerification");
-
+ResetURL="http://localhost:4200/resetpassword";
+const token = require("../models/token")
 exports.signup = (req, res) => {
     const user = new User({
       name:req.body.name,
@@ -139,6 +140,7 @@ exports.signup = (req, res) => {
         var token = jwt.sign({ id: user.id }, config.secret, {
           expiresIn: 86400 // the token is valid for 24 hours
         });
+        user.token= token 
         var authorities = [];
         for (let i = 0; i < user.roles.length; i++) {
           authorities.push("ROLE_" + user.roles[i].name.toUpperCase());
@@ -151,57 +153,6 @@ exports.signup = (req, res) => {
         });
       });
   };
-
-  // const SendOtpVerification = async({_id,email},res) =>{
-  //   const otp = Math.floor(`${1000+Math.random()*9000}`);
-  //     let transporter = nodemailer.createTransport({
-  //       service: "gmail",
-  //       auth: {
-
-  //           user:"duetodatasousse@gmail.com",
-  //           pass:"duetodata123" ,
-  //       },
-  //       tls:{
-  //           rejectUnauthorized: false
-  //       }
-  //   });
-  //   try{
-  //   let mailOptions = {
-  //     from: "duetodatasousse@gmail.com",
-  //     to: email,
-  //     subject: 'Verification code ✔',
-
-  //     html:
-  //         '<p>Hello</p> '+
-  //         user.name +
-  //         '<p> Enter ${otp} in the app to verify your email address and complete the sign up proceess </p>' +
-  //         '</p> This code expires in 1 hour </p>  '
-  // };
-  //    const saltRounds = 10;
-  //    const hasedOtp = await bcrypt.hash(otp,saltRounds);
-  //    const newOtp =  await new UserVerification({
-  //      userId:_id,
-  //      otp:hasedOtp,
-  //      createdAt:Date.now(),
-  //      expiresIn: Date.now() + 3600000 ,
-  //    });
-  //     await newOtp.save();
-  //     await transporter.sendMail(mailOptions);
-  //     res.json({
-  //       status:"PENDING",
-  //       message:"Verification otp email is sent",
-  //       data:{
-  //         userId:_id,
-  //         email
-  //       }
-  //     })
-  //   }catch(err){
-  //    res.json({
-  //      status:"FAILED",
-  //      message:error.message
-  //    })
-  //   }
-  // }
 
 
   exports.verifyOtp = async(req, res) => {
@@ -254,4 +205,87 @@ exports.signup = (req, res) => {
 
     }
 
-  }
+  };
+
+  exports.requestPasswordReset = async (req, res) => {
+    const user = await User.findOne({email: req.body.email});
+    if (!user) throw new Error("Email does not exist");
+
+    let token = await Token.findOne({ userId: user._id });
+
+    if (token) await token.deleteOne(); // to delete the previous one and create a new one 
+
+    let resetToken = crypto.randomBytes(32).toString("hex");
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(resetToken.toString(), salt);
+  const tok=  await new Token({
+        userId: user._id,
+        token: hash,
+        createdAt: Date.now(),
+    }).save();
+    const link = `${ResetURL}?token=${resetToken}&id=${user._id}`;
+    let transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user:"duetodatasousse@gmail.com",
+
+            pass:"duetodata123" ,
+        },
+        tls:{
+            rejectUnauthorized: false
+        }
+    });
+    let mailOptions = {
+        from: "duetodatasousse@gmail.com",
+        to:email,
+        subject: 'Réinitialisation du mot de passe ✔',
+        text:
+            'Bonjour '+
+            user.email +
+            '\n' +
+            'Vous recevez ceci parce que vous avez demandé la réinitialisation du mot de passe de votre compte.' +
+            '\n' +
+            'Veuillez cliquer sur le lien suivant ou le coller dans votre navigateur pour terminer le processus:' +
+            '\n' +link +'\n' +
+             "Si vous ne l'avez pas demandé, veuillez ignorer cet e-mail et votre mot de passe restera inchangé",
+
+    };
+    console.log(mailOptions);
+    transporter
+        .sendMail(mailOptions)
+        .then(() => {
+            console.log("reset email sent");
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+}
+
+exports.resetPassword = async (req, res) => {
+    let {userId, token, password}= req.body
+    let passwordResetToken = await Token.findOne({ userId });
+     if (!passwordResetToken) {
+        throw new Error("Invalid or expired password reset token");
+    }
+    console.log(passwordResetToken)
+
+    const isValid = await bcrypt.compare(token, passwordResetToken.token);
+     if (!isValid) {
+        throw new Error("Invalid or expired password reset token");
+    }
+     const salt = await bcrypt.genSalt(10);
+     if (!salt) throw Error("Something went wrong with bcrypt");
+     const hash = await bcrypt.hash(password.toString(), salt);
+     if (!hash) throw Error("Something went wrong hashing the password");
+
+    await User.findByIdAndUpdate(
+        { _id: userId },
+        { $set: { password: hash } },
+        { new: true }
+    );
+
+    const user = await User.findById({ _id: userId });
+    await passwordResetToken.deleteOne();
+
+    return true;
+}

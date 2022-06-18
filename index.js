@@ -8,7 +8,9 @@ const Role = db.role;
 const commentRoute = require('./routes/comment.route');
 const campaignRoute = require('./routes/campaign.route');
 const categoryRoute= require('./routes/category.route');
+const Donation = require('./models/donation');
 const userRoute= require('./routes/user.route');
+const donateRoute = require('./routes/donation.route')
 const routerServerMail = require('./routes/sendemail.route');
 const stripe = require("stripe")("sk_test_51KzNmnKxDkYllxSndR9I6t5GYHz6nuk4XWonVikVU3ukExgVaZn25vFVXutEZb3nPPmy6EkpFKftQWc7NLRGinwH00mUY9JUdQ");
 
@@ -30,6 +32,7 @@ app.use("/comment",commentRoute);
 app.use("/category",categoryRoute);
 app.use("/users",userRoute);
 app.use('/contact',routerServerMail);
+app.use("/donate",donateRoute)
 require('./routes/auth.route')(app);
 
 app.post('/checkout', async(req, res) =>{
@@ -53,7 +56,7 @@ app.post('/checkout', async(req, res) =>{
       .then((charge) => {
         console.log(charge);
           res.json({
-            data:"success"
+            data:"success",
         })
       })
       .catch((err) => {

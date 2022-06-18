@@ -4,15 +4,18 @@ const DonationSchema = new mongoose.Schema({
     name:{
         type: String,
     },
-    last_name:{
+    lastname:{
         type:String,
     },
-    amount:{
+    donateamount:{
         type:Number,
         required:true
     },
     anonymous:{
        type:Boolean, 
+    },
+    status:{
+        type:Boolean
     },
     campaign_id:{
       type:mongoose.Schema.Types.ObjectId,

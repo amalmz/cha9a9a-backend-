@@ -38,6 +38,12 @@ const CampaignSchema = new mongoose.Schema({
         ref:'Comment'
     }
  ],
+ donations:[
+   {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:'Donation'
+   }
+ ]
 },
 {
     timestamps:true, // mongoose option that automattically manage createdAt and updatedAt 

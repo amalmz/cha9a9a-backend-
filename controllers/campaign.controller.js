@@ -21,13 +21,13 @@ module.exports = {
     	$push:{
             campaign : campaignData
         }})
-        const campaignStripe = await stripe.products.create({
-            name: req.body.name,
-            default_price_data: {
-                unit_amount: 0,
-                currency: 'usd',
-              },          
-          });
+        // const campaignStripe = await stripe.products.create({
+        //     name: req.body.name,
+        //     default_price_data: {
+        //         unit_amount: 0,
+        //         currency: 'usd',
+        //       },          
+        //   });
         return res.status(200).json({
             message:'Campaign is succssfully created',
             data:campaignData,

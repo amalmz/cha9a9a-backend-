@@ -76,7 +76,7 @@ module.exports = {
                   data: campaigns,
                });
            }
-   }).populate("created_by").populate({path:"comments",populate:{path:"user_id"}});
+   }).populate("created_by").populate({path:"comments",populate:{path:"user_id"}}).populate({path:"donations",populate:{path:"user_id"}});
     },
 
     getCampaignsByStatus:(req,res)=>{

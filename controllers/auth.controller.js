@@ -1,3 +1,4 @@
+require('dotenv').config()
 const config = require("../config/auth.config");
 const db = require("../models/roles");
 const User = db.user;
@@ -11,7 +12,7 @@ const token = require("../models/token")
 exports.signup = (req, res) => {
     const user = new User({
       name:req.body.name,
-      lastname:req.body.name,
+      lastname:req.body.lastname,
       tel:req.body.tel,
       email: req.body.email,
       password: bcrypt.hashSync(req.body.password, 8),
@@ -69,16 +70,18 @@ exports.signup = (req, res) => {
     const otp = Math.floor(`${1000+Math.random()*9000}`);
     let transporter = nodemailer.createTransport({
       service: "gmail",
-       auth: {
-           user:"duetodatasousse@gmail.com",
-           pass:"duetodata123" ,
-       },       tls:{
-           rejectUnauthorized: false
-       }
+      auth:{
+        user: "duetodata1234@gmail.com",
+        pass: "finaksxarbofomyr"
+    },
+      tls:{
+          rejectUnauthorized: false
+      }
+   
    });
 
    let mailOptions = {
-     from: "duetodatasousse@gmail.com",
+     from: "duetodata1234@gmail.com",
      to:user.email,
      subject: 'Verification code ✔',
 
@@ -207,85 +210,85 @@ exports.signup = (req, res) => {
 
   };
 
-  exports.requestPasswordReset = async (req, res) => {
-    const user = await User.findOne({email: req.body.email});
-    if (!user) throw new Error("Email does not exist");
+//   exports.requestPasswordReset = async (req, res) => {
+//     const user = await User.findOne({email: req.body.email});
+//     if (!user) throw new Error("Email does not exist");
 
-    let token = await Token.findOne({ userId: user._id });
+//     let token = await Token.findOne({ userId: user._id });
 
-    if (token) await token.deleteOne(); // to delete the previous one and create a new one 
+//     if (token) await token.deleteOne(); // to delete the previous one and create a new one 
 
-    let resetToken = crypto.randomBytes(32).toString("hex");
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(resetToken.toString(), salt);
-  const tok=  await new Token({
-        userId: user._id,
-        token: hash,
-        createdAt: Date.now(),
-    }).save();
-    const link = `${ResetURL}?token=${resetToken}&id=${user._id}`;
-    let transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-            user:"duetodatasousse@gmail.com",
+//     let resetToken = crypto.randomBytes(32).toString("hex");
+//     const salt = await bcrypt.genSalt(10);
+//     const hash = await bcrypt.hash(resetToken.toString(), salt);
+//   const tok=  await new Token({
+//         userId: user._id,
+//         token: hash,
+//         createdAt: Date.now(),
+//     }).save();
+//     const link = `${ResetURL}?token=${resetToken}&id=${user._id}`;
+//     let transporter = nodemailer.createTransport({
+//         service: "gmail",
+//         auth: {
+//             user:"duetodatasousse@gmail.com",
 
-            pass:"duetodata123" ,
-        },
-        tls:{
-            rejectUnauthorized: false
-        }
-    });
-    let mailOptions = {
-        from: "duetodatasousse@gmail.com",
-        to:email,
-        subject: 'Réinitialisation du mot de passe ✔',
-        text:
-            'Bonjour '+
-            user.email +
-            '\n' +
-            'Vous recevez ceci parce que vous avez demandé la réinitialisation du mot de passe de votre compte.' +
-            '\n' +
-            'Veuillez cliquer sur le lien suivant ou le coller dans votre navigateur pour terminer le processus:' +
-            '\n' +link +'\n' +
-             "Si vous ne l'avez pas demandé, veuillez ignorer cet e-mail et votre mot de passe restera inchangé",
+//             pass:"duetodata123" ,
+//         },
+//         tls:{
+//             rejectUnauthorized: false
+//         }
+//     });
+//     let mailOptions = {
+//         from: "duetodatasousse@gmail.com",
+//         to:email,
+//         subject: 'Réinitialisation du mot de passe ✔',
+//         text:
+//             'Bonjour '+
+//             user.email +
+//             '\n' +
+//             'Vous recevez ceci parce que vous avez demandé la réinitialisation du mot de passe de votre compte.' +
+//             '\n' +
+//             'Veuillez cliquer sur le lien suivant ou le coller dans votre navigateur pour terminer le processus:' +
+//             '\n' +link +'\n' +
+//              "Si vous ne l'avez pas demandé, veuillez ignorer cet e-mail et votre mot de passe restera inchangé",
 
-    };
-    console.log(mailOptions);
-    transporter
-        .sendMail(mailOptions)
-        .then(() => {
-            console.log("reset email sent");
-        })
-        .catch((error) => {
-            console.log(error);
-        });
-}
+//     };
+//     console.log(mailOptions);
+//     transporter
+//         .sendMail(mailOptions)
+//         .then(() => {
+//             console.log("reset email sent");
+//         })
+//         .catch((error) => {
+//             console.log(error);
+//         });
+// }
 
-exports.resetPassword = async (req, res) => {
-    let {userId, token, password}= req.body
-    let passwordResetToken = await Token.findOne({ userId });
-     if (!passwordResetToken) {
-        throw new Error("Invalid or expired password reset token");
-    }
-    console.log(passwordResetToken)
+// exports.resetPassword = async (req, res) => {
+//     let {userId, token, password}= req.body
+//     let passwordResetToken = await Token.findOne({ userId });
+//      if (!passwordResetToken) {
+//         throw new Error("Invalid or expired password reset token");
+//     }
+//     console.log(passwordResetToken)
 
-    const isValid = await bcrypt.compare(token, passwordResetToken.token);
-     if (!isValid) {
-        throw new Error("Invalid or expired password reset token");
-    }
-     const salt = await bcrypt.genSalt(10);
-     if (!salt) throw Error("Something went wrong with bcrypt");
-     const hash = await bcrypt.hash(password.toString(), salt);
-     if (!hash) throw Error("Something went wrong hashing the password");
+//     const isValid = await bcrypt.compare(token, passwordResetToken.token);
+//      if (!isValid) {
+//         throw new Error("Invalid or expired password reset token");
+//     }
+//      const salt = await bcrypt.genSalt(10);
+//      if (!salt) throw Error("Something went wrong with bcrypt");
+//      const hash = await bcrypt.hash(password.toString(), salt);
+//      if (!hash) throw Error("Something went wrong hashing the password");
 
-    await User.findByIdAndUpdate(
-        { _id: userId },
-        { $set: { password: hash } },
-        { new: true }
-    );
+//     await User.findByIdAndUpdate(
+//         { _id: userId },
+//         { $set: { password: hash } },
+//         { new: true }
+//     );
 
-    const user = await User.findById({ _id: userId });
-    await passwordResetToken.deleteOne();
+//     const user = await User.findById({ _id: userId });
+//     await passwordResetToken.deleteOne();
 
-    return true;
-}
+//     return true;
+// }

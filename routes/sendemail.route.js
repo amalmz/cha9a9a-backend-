@@ -1,4 +1,3 @@
-require('dotenv').config();
 const nodemailer = require('nodemailer');
 const express=require('express')
 const router=express.Router()
@@ -9,8 +8,8 @@ let transporter = nodemailer.createTransport({
     port: '465',
     ssl : true,
     auth:{
-        user: process.env.AUTH_EMAIL,
-        pass: process.env.AUTH_PASS
+        user: "duetodata1234@gmail.com",
+        pass: "finaksxarbofomyr"
     }
 })
 
@@ -20,8 +19,8 @@ router.post('/email',async(req,res)=>{
   var message = " Nom :"+req.body.nom + "\r\n Email de client : "+req.body.email+"\r\n Sujet : "+req.body.subject+" \r\n Message : "+req.body.message;
   
   let mailOptions = {
-       from: process.env.AUTH_EMAIL,
-       to: process.env.AUTH_EMAIL,
+       from: "duetodata1234@gmail.com",
+       to: "duetodata1234@gmail.com",
        subject: req.body.subject,
        text: message
    }

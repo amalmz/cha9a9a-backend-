@@ -10,7 +10,8 @@ const campaignRoute = require('./routes/campaign.route');
 const categoryRoute= require('./routes/category.route');
 const Donation = require('./models/donation');
 const userRoute= require('./routes/user.route');
-const donateRoute = require('./routes/donation.route')
+const donateRoute = require('./routes/donation.route');
+const requestRoute = require('./routes/request.route')
 const routerServerMail = require('./routes/sendemail.route');
 const stripe = require("stripe")("sk_test_51KzNmnKxDkYllxSndR9I6t5GYHz6nuk4XWonVikVU3ukExgVaZn25vFVXutEZb3nPPmy6EkpFKftQWc7NLRGinwH00mUY9JUdQ");
 
@@ -33,6 +34,9 @@ app.use("/category",categoryRoute);
 app.use("/users",userRoute);
 app.use('/contact',routerServerMail);
 app.use("/donate",donateRoute)
+app.use("/request",requestRoute)
+
+
 require('./routes/auth.route')(app);
 
 app.post('/checkout', async(req, res) =>{

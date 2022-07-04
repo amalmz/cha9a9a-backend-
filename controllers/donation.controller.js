@@ -7,7 +7,7 @@ module.exports = {
             name:req.body.name,
             lastname:req.body.lastname,
             donateamount:req.body.donateamount,
-            anonymous:"false",
+            anonymous:req.body.anonymous,
             status:"false",
             campaign_id:req.params.campaign_id,
             user_id:req.userId
@@ -21,7 +21,7 @@ module.exports = {
               })
               await User.findByIdAndUpdate({_id:req.userId},{
                 $push:{
-                     donations : donationsuccess
+                    donation : donationsuccess
                 }
              })
             return res.status(200).json({

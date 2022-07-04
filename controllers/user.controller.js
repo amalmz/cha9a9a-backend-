@@ -44,7 +44,7 @@ exports.getUserbyid =(req,res) =>{
               data: users,
            });
        }
-}).populate("campaign");
+}).populate("campaign").populate({path:"donation",populate:{path:"campaign_id"}});
 }
 
 exports.UpdateRole=(req,res)=>{

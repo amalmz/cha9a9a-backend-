@@ -46,7 +46,7 @@ module.exports = {
         const limit = parseInt(req.query.limit);
         const skipIndex = (page - 1) * limit;
         const total = await Campaign.countDocuments({});
-        const campaigns = await Campaign.find({}).populate("category").populate("created_by")
+        const campaigns = await Campaign.find({}).populate("category").populate("created_by").populate("donations")
         .limit(limit)
         .skip(skipIndex)
         if(campaigns.length === 0){

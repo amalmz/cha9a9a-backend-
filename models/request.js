@@ -7,10 +7,12 @@ const RequestSchema = new mongoose.Schema({
     },
     description:{
         type:String ,
-        required:true
     },
     id_card:{
         type:String ,
+    },
+    status:{
+        type:Boolean
     },
     user_id:{
         type:mongoose.Schema.Types.ObjectId,
